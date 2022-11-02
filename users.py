@@ -16,7 +16,6 @@ class User:
         with open("user.txt", "w") as file:
             file.write(f"{email} {pass_enc}")
         file.close()
-        print(f"{name} user created successfully")
 
     @staticmethod
     def log_in(email, password):
@@ -66,7 +65,7 @@ class Driver(User):
     def take_driving_test(self):
         result = license_authority.driving_test(self.email)
         if result == False:
-            print("Sorry you failed, try again...")
+            self.license = None
         else:
             self.license = result
             self.valid_driver = True
@@ -87,33 +86,29 @@ class Driver(User):
                 uber.add_a_vehicle(vehicle_type, new_vehicle)
 
         else:
-            print("you are not a valid Driver")
+            pass
 
 
+# creating users
 user1 = Rider("Foysal", "mfoysal314@gmail.com",
-              "123456", random.randint(0, 100), 5000)
+              "123456", random.randint(0, 30), 1000)
 user2 = Rider("user2", "user2@gmail.com", "user2",
-              random.randint(0, 100), 5000)
+              random.randint(0, 30), 5645)
+user3 = Rider("user3", "user3@gmail.com", "user3",
+              random.randint(0, 30), 5645)
 
-driver1 = Driver("driver1", "driver1@mail.com",
-                 "driver1", random.randint(0, 100), 5000)
-driver1.take_driving_test()
-driver1.register_a_vehicle("car", 2145, 10)
+# creating drivers
+for i in range(1, 100):
+    driver1 = Driver(f"driver{i}", f"driver{i}@mail.com",
+                     f"driver{i}", random.randint(0, 100), random.randint(1000, 9999))
+    driver1.take_driving_test()
+    driver1.register_a_vehicle("car", random.randint(10000, 99999), 10)
 
-driver2 = Driver("driver2", "driver1@mail.com",
-                 "driver2", random.randint(0, 100), 5000)
-driver1.take_driving_test()
-driver1.register_a_vehicle("car", 2145, 10)
-driver3 = Driver("driver3", "driver1@mail.com",
-                 "driver3", random.randint(0, 100), 5000)
-driver1.take_driving_test()
-driver1.register_a_vehicle("car", 2145, 10)
-driver4 = Driver("driver4", "driver1@mail.com",
-                 "driver3", random.randint(0, 100), 5000)
-driver1.take_driving_test()
-driver1.register_a_vehicle("car", 2145, 10)
 
 print(uber.get_available_cars())
-
-print("\n\n")
-uber.find_a_vehicle(user1, 'car', 90)
+print("\n")
+uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user1, 'car', random.randint(1, 100))

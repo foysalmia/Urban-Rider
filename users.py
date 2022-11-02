@@ -1,5 +1,6 @@
 import hashlib
 import random
+import threading
 
 from BRTA import Brta
 from ridemanager import uber
@@ -35,6 +36,7 @@ class Rider(User):
     def __init__(self, name, email, password, locataion, balance) -> None:
         self.location = locataion
         self.balance = balance
+        self.__trip_history = []
         super().__init__(name, email, password)
 
     def set_location(self, location):
@@ -46,8 +48,13 @@ class Rider(User):
     def request_trip(self, destination):
         pass
 
-    def start_a_trip(self, fare):
+    def start_a_trip(self, fare, trip_info):
         self.balance -= fare
+        self.__trip_history.append(trip_info)
+        print(f"A trip Started for {self.name}")
+
+    def get_trip_history(self):
+        return self.__trip_history
 
 
 class Driver(User):
@@ -56,11 +63,19 @@ class Driver(User):
         self.license = license
         self.valid_driver = license_authority.validate_license(email, license)
         self.earning = 0
+        self.__trip_history = []
+        self.vehicle = None
         super().__init__(name, email, password)
 
-    def start_a_trip(self, destionation, fare):
+    def start_a_trip(self, start, destionation, fare, trip_info):
         self.earning += fare
         self.location = destionation
+        # start thread
+        trip_thread = threading.Thread(
+            target=self.vehicle.start_driving, args=(start, destionation,))
+        trip_thread.start()
+        self.vehicle.start_driving(start, destionation)
+        self.__trip_history.append(trip_info)
 
     def take_driving_test(self):
         result = license_authority.driving_test(self.email)
@@ -73,17 +88,17 @@ class Driver(User):
     def register_a_vehicle(self, vehicle_type, license_plate, rate):
         if self.valid_driver:
             if vehicle_type == 'car':
-                new_vehicle = Car(
+                self.vehicle = Car(
                     vehicle_type, license_plate, rate, self)
-                uber.add_a_vehicle(vehicle_type, new_vehicle)
+                uber.add_a_vehicle(vehicle_type, self.vehicle)
             elif vehicle_type == "bike":
-                new_vehicle = Bike(
+                self.vehicle = Bike(
                     vehicle_type, license_plate, rate, self)
-                uber.add_a_vehicle(vehicle_type, new_vehicle)
+                uber.add_a_vehicle(vehicle_type, self.vehicle)
             else:
-                new_vehicle = CNG(
+                self.vehicle = CNG(
                     vehicle_type, license_plate, rate, self)
-                uber.add_a_vehicle(vehicle_type, new_vehicle)
+                uber.add_a_vehicle(vehicle_type, self.vehicle)
 
         else:
             pass
@@ -105,10 +120,14 @@ for i in range(1, 100):
     driver1.register_a_vehicle("car", random.randint(10000, 99999), 10)
 
 
-print(uber.get_available_cars())
+# print(uber.get_available_cars())
 print("\n")
 uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
-uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
-uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
-uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
-uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user2, 'car', random.randint(1, 100))
+uber.find_a_vehicle(user3, 'car', random.randint(1, 100))
+# uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+# uber.find_a_vehicle(user1, 'car', random.randint(1, 100))
+
+print("____________________")
+print(user1.get_trip_history())
+print(uber.total_income())
